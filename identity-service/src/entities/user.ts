@@ -10,5 +10,8 @@ export class User extends AppBaseEntity {
   password: string;
 
   @Column({ name: 'full_name', type: 'varchar' })
-  fullName: string;
+  full_name: string;
+
+  @Column({ name: 'role', type: 'varchar', default: 'user' })
+  role: 'user' | 'admin';
 }
