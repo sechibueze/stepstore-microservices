@@ -1,0 +1,27 @@
+NOTE.md
+# nginx/
+k8/
+# Node.js
+**/node_modules/
+**/dist/
+**/build/
+
+# Logs
+logs
+*.log
+
+# Env files
+.env
+.env.local
+.env.*
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
