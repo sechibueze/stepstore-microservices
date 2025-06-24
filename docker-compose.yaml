@@ -43,15 +43,15 @@ services:
     #   - kafka_data:/bitnami/kafka
 
   kafka-ui:
-    image: provectuslabs/kafka-ui
-    ports:
-      - '8090:8090'
+    image: provectuslabs/kafka-ui:latest
     environment:
-      - KAFKA_CLUSTERS_0_NAME:stepstore
-      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS:kafka:9092
-      # - DYNAMIC_CONFIG_ENABLED: 'true'
-    volumes:
-      - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_NAME: stepstore
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    ports:
+      - '8080:8080'
+    # volumes:
+    #   - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
     depends_on:
       - kafka
 
