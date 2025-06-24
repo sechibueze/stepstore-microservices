@@ -16,38 +16,44 @@ services:
   #   ports:
   #     - 8080:8080
 
-  # kafka:
-  #   image: apache/kafka:latest
-  #   environment:
-  #     KAFKA_NODE_ID: 1
-  #     KAFKA_PROCESS_ROLES: broker,controller
-  #     KAFKA_LISTENERS: PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093
-  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-  #     KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-  #     KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
-  #     KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
-  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-  #     KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-  #     KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-  #     KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-  #     KAFKA_NUM_PARTITIONS: 3
-  #   ports:
-  #     - '9092:9092'
-  #   volumes:
-  #     - kafka_data:/bitnami/kafka
+  kafka:
+    image: apache/kafka:latest
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      # KAFKA_LISTENERS: PLAINTEXT://localhost:9092,CONTROLLER://localhost:9093
+      # KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      # KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      # KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      #
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      #
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - '9092:9092'
+    # volumes:
+    #   - kafka_data:/bitnami/kafka
 
-  # kafka-ui:
-  #   image: provectuslabs/kafka-ui
-  #   ports:
-  #     - '8090:8090'
-  #   environment:
-  #     - KAFKA_CLUSTERS_0_NAME:stepstore
-  #     - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS:kafka:9092
-  #     # - DYNAMIC_CONFIG_ENABLED: 'true'
-  #   volumes:
-  #     - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
-  #   depends_on:
-  #     - kafka
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    environment:
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_NAME: stepstore
+      DYNAMIC_CONFIG_ENABLED: 'true'
+    ports:
+      - '8080:8080'
+    # volumes:
+    #   - ~/kui/config.yml:/etc/kafkaui/dynamic_config.yaml
+    depends_on:
+      - kafka
 
   nginx:
     image: nginx:alpine
@@ -66,7 +72,7 @@ services:
       - '4001:4001'
     depends_on:
       - postgres
-      # - kafka
+      - kafka
 
 volumes:
   pgdata:
