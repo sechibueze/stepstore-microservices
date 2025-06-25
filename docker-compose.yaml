@@ -1,5 +1,6 @@
 services:
   postgres:
+    container_name: postgres
     image: postgres:17.5-alpine
     environment:
       POSTGRES_USER: postgres
@@ -17,6 +18,7 @@ services:
   #     - 8080:8080
 
   kafka:
+    container_name: kafka
     image: apache/kafka:latest
     environment:
       KAFKA_NODE_ID: 1
@@ -43,6 +45,7 @@ services:
     #   - kafka_data:/bitnami/kafka
 
   kafka-ui:
+    container_name: kafka-ui
     image: provectuslabs/kafka-ui:latest
     environment:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -56,6 +59,7 @@ services:
       - kafka
 
   nginx:
+    container_name: api-gateway
     image: nginx:alpine
     ports:
       - '8000:80'
@@ -65,11 +69,22 @@ services:
       - identity-service
 
   identity-service:
+    container_name: identity-service
     build: ./identity-service
     env_file:
       - ./identity-service/.env
     ports:
       - '4001:4001'
+    depends_on:
+      - postgres
+      - kafka
+  notification-service:
+    container_name: notification-service
+    build: ./notification-service
+    env_file:
+      - ./notification-service/.env
+    ports:
+      - '4002:4002'
     depends_on:
       - postgres
       - kafka

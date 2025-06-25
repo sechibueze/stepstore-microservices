@@ -9,7 +9,7 @@ import {
 interface KafkaConfig {
   clientId: string;
   brokers: string[];
-  groupId?: string;
+  groupId: string;
 }
 
 export class KafkaManager {

@@ -13,7 +13,7 @@ import logger from './utils/logger';
 const kafkaConfig = {
   clientId: 'identity-service',
   brokers: ['kafka:9092'], // Should match your Docker Kafka setup
-  // groupId: 'identity-group',
+  groupId: 'identity-group',
 };
 
 const app: Application = express();
@@ -47,10 +47,17 @@ const start = async () => {
     await AppDataSource.initialize();
     logger.info('✅ DB connected');
 
+    // if (process.env.KAFKA_ENABLED === 'true') {
     const kafka = KafkaManager.getInstance(kafkaConfig);
     await kafka.connectProducer();
+    // await kafka.connectConsumer(kafkaConfig.groupId);
+    // await kafka.subscribe('user-created', async (msg) => {
+    //   msg;
+    // });
+    // }
 
     app.listen(port, '0.0.0.0', () => {
+      // app.listen(port, () => {
       console.log(`Identify Service running at http://localhost:${port}`);
     });
   } catch (err) {
