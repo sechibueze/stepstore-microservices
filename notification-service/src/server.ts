@@ -4,20 +4,20 @@ import helmet from 'helmet';
 import 'dotenv/config';
 import { AppDataSource } from './config/database';
 import { KafkaManager } from './events/kafka.manager';
-import authRoutes from './routes/auth.route';
+import notificationRoutes from './routes';
 import { responseHandler } from './middlewares/response.middleware';
 import requestLogger from './middlewares/logger.middleware';
 import { ResponseBuilder } from './utils/response.builder';
 import logger from './utils/logger';
 
 const kafkaConfig = {
-  clientId: 'identity-service',
+  clientId: 'notification-service',
   brokers: ['kafka:9092'], // Should match your Docker Kafka setup
-  // groupId: 'identity-group',
+  groupId: 'notification-group',
 };
 
 const app: Application = express();
-const port = +process.env.PORT || 4001;
+const port = +process.env.PORT || 4002;
 declare global {
   namespace Express {
     interface Request {
@@ -36,22 +36,21 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(responseHandler);
 const healthCheckHandler = (_req: Request, res: Response) => {
-  res.status(200).json({ msg: 'Identify Service Running' });
+  res.status(200).json({ msg: 'Notification Service Running' });
 };
 app.get('/health', healthCheckHandler);
-app.use('/', authRoutes);
+app.use('/', notificationRoutes);
 
 const start = async () => {
   try {
-    console.log('is kafka', process.env.KAFKA_ENABLED);
-    await AppDataSource.initialize();
-    logger.info('✅ DB connected');
-
     const kafka = KafkaManager.getInstance(kafkaConfig);
-    await kafka.connectProducer();
+    await kafka.connectConsumer(kafkaConfig.groupId);
+    await kafka.subscribe('user.created', async (msg) => {
+      console.log('Message received ', msg);
+    });
 
     app.listen(port, '0.0.0.0', () => {
-      console.log(`Identify Service running at http://localhost:${port}`);
+      console.log(`Notification Service running at http://localhost:${port}`);
     });
   } catch (err) {
     console.error('Startup Error:', err);
